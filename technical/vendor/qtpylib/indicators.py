@@ -222,7 +222,7 @@ def crossed(series1, series2, direction=None):
     if isinstance(series1, np.ndarray):
         series1 = pd.Series(series1)
 
-    if isinstance(series2, (float, int, np.ndarray)):
+    if isinstance(series2, (float, int, np.ndarray, np.integer, np.floating)):
         series2 = pd.Series(index=series1.index, data=series2)
 
     if direction is None or direction == "above":
@@ -288,9 +288,9 @@ def rolling_min(series, window=14, min_periods=None):
 def rolling_max(series, window=14, min_periods=None):
     min_periods = window if min_periods is None else min_periods
     try:
-        return series.rolling(window=window, min_periods=min_periods).min()
+        return series.rolling(window=window, min_periods=min_periods).max()
     except Exception as e:  # noqa: F841
-        return pd.Series(series).rolling(window=window, min_periods=min_periods).min()
+        return pd.Series(series).rolling(window=window, min_periods=min_periods).max()
 
 
 # ---------------------------------------------
@@ -338,11 +338,13 @@ def vwap(bars):
     (input can be pandas series or numpy array)
     bars are usually mid [ (h+l)/2 ] or typical [ (h+l+c)/3 ]
     """
-    typical = ((bars['high'] + bars['low'] + bars['close']) / 3).values
-    volume = bars['volume'].values
+    raise ValueError("using `qtpylib.vwap` facilitates lookahead bias. Please use "
+                     "`qtpylib.rolling_vwap` instead, which calculates vwap in a rolling manner.")
+    # typical = ((bars['high'] + bars['low'] + bars['close']) / 3).values
+    # volume = bars['volume'].values
 
-    return pd.Series(index=bars.index,
-                     data=np.cumsum(volume * typical) / np.cumsum(volume))
+    # return pd.Series(index=bars.index,
+    #                  data=np.cumsum(volume * typical) / np.cumsum(volume))
 
 
 # ---------------------------------------------
